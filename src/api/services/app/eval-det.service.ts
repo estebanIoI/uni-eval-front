@@ -1,0 +1,68 @@
+/**
+ * Servicio para Evaluación Detalle
+ * Acceso a endpoints /eval/det según Swagger especificado
+ */
+
+import { BaseService } from '../../core/BaseService';
+import type { ApiResponse } from '../../types/api.types';
+
+export interface EvaluacionDetalle {
+  id: number;
+  eval_id: number;
+  a_e_id: number;
+  cmt: string | null;
+  fecha_creacion?: string | null;
+  fecha_actualizacion?: string | null;
+}
+
+export interface CreateEvaluacionDetalleInput {
+  eval_id: number;
+  a_e_id: number;
+  cmt: string | null;
+}
+
+export interface UpdateEvaluacionDetalleInput {
+  eval_id?: number;
+  a_e_id?: number;
+  cmt?: string | null;
+}
+
+export interface EvalDetBulkItem {
+  a_e_id: number;
+  cmt?: string | null;
+}
+
+export interface EvalDetBulkSaveRequest {
+  eval_id: number;
+  items: EvalDetBulkItem[];
+}
+
+export interface EvalDetBulkSaveResponse {
+  message: string;
+  data: {
+    count: number;
+  };
+}
+
+class EvaluacionDetalleService extends BaseService<
+  EvaluacionDetalle,
+  CreateEvaluacionDetalleInput,
+  UpdateEvaluacionDetalleInput
+> {
+  constructor() {
+    super('/eval/det');
+  }
+
+  /**
+   * Guarda en bulk respuestas y comentarios
+   * POST /eval/det/bulk
+   */
+  async bulkSave(data: EvalDetBulkSaveRequest): Promise<ApiResponse<EvalDetBulkSaveResponse>> {
+    return this.executeAsync(
+      () => this.bulkCreate(data),
+      { message: 'Error al guardar evaluaciones', data: { count: 0 } }
+    );
+  }
+}
+
+export const evaluacionDetalleService = new EvaluacionDetalleService();
