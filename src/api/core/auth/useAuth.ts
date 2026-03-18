@@ -127,12 +127,15 @@ export function useRequireAuth(redirectTo: string = '/login') {
     if (hasChecked) return;
 
     const checkAuth = async () => {
-      const token = authService.getToken();
-      
-      if (!token) {
-        router.push(redirectTo);
-        setHasChecked(true);
-        return;
+      // Verificar si el token existe Y no ha expirado
+      if (!authService.isAuthenticated()) {
+        // Si expiró pero hay refresh token, intentar renovar antes de redirigir
+        const renewed = await authService.ensureValidToken();
+        if (!renewed) {
+          router.push(redirectTo);
+          setHasChecked(true);
+          return;
+        }
       }
 
       setIsChecking(false);
